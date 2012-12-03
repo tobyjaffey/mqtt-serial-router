@@ -64,7 +64,9 @@ static void mqtt_timeout_cb(struct ev_loop *loop, struct ev_io *w, int revents)
                 mqtt_disconnect(mqttctx);
             }
 
+#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
             if (mosquitto_want_write(mqttctx->mosq))
+#endif
                 ev_io_start(g_srvctx.loop, &mqttctx->write_watcher.io);
         }
     }
