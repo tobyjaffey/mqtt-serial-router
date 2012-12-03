@@ -18,7 +18,8 @@ OBJS =  $(OBJDIR)/$(TARGET).o \
         $(OBJDIR)/midunsublist.o \
         $(OBJDIR)/addrsublist.o 
 
-CFLAGS += -L/usr/local/lib -lmosquitto -lev -I. -I/usr/local/include
+CFLAGS += -I. -I/usr/local/include
+LDFLAGS += -L/usr/local/lib -lmosquitto -lev
 
 all: $(TARGET)
 
