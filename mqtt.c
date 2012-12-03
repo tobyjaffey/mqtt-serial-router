@@ -131,12 +131,12 @@ void *userdata, const struct mosquitto_message *msg)
     if (msg->payloadlen)
     {
         LOG_DEBUG("mqtt rx %s %s", msg->topic, msg->payload);
-        cmd_message_cb(msg->topic, msg->payload);
+        cmd_message_cb((const char *)msg->topic, (const char *)msg->payload);
     }
     else
     {
         LOG_DEBUG("mqtt rx %s (null)", msg->topic);
-        cmd_message_cb(msg->topic, NULL);
+        cmd_message_cb((const char *)msg->topic, NULL);
     }
 }
 
@@ -153,8 +153,10 @@ void *userdata, MOSQ_MID_T mid)
 static void mosq_subscribe_cb(
 #if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
 struct mosquitto *mosq,
-#endif
 void *userdata, MOSQ_MID_T mid, int qos_count, const int *granted_qos)
+#else
+void *userdata, MOSQ_MID_T mid, int qos_count, const uint8_t *granted_qos)
+#endif
 {
     LOG_DEBUG("sub OK mid=%d", mid);
     cmd_subscribe_cb(mid);
@@ -210,7 +212,11 @@ int mqtt_connect(mqtt_context_t *mqttctx, const char *name, const char *host, ui
         strncpy(g_srvctx.mqtt_server, host, sizeof(g_srvctx.mqtt_server));
     g_srvctx.mqtt_port = port;
 
+#if LIBMOSQUITTO_VERSION_NUMBER < 1000005
+    if (0 != mosquitto_connect(mqttctx->mosq, g_srvctx.mqtt_server, g_srvctx.mqtt_port, 5, true)) // FIXME, this should be async, with below in cb
+#else
     if (0 != mosquitto_connect(mqttctx->mosq, g_srvctx.mqtt_server, g_srvctx.mqtt_port, 5)) // FIXME, this should be async, with below in cb
+#endif
     {
         LOG_INFO("mqtt connect failed");
         return 1;
