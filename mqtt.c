@@ -215,7 +215,7 @@ int mqtt_disconnect(mqtt_context_t *mqttctx)
 int mqtt_publish(mqtt_context_t *mqttctx, const char *topic, const char *msg, int qos, int *mid)
 {
     int rc;
-    int m;
+    MOSQ_MID_T m;
 
     rc = mosquitto_publish(mqttctx->mosq, &m, topic, strlen(msg), (const uint8_t *)msg, qos, true);
     LOG_DEBUG("mqtt_publish topic=%s msg=%s rc=%d", topic, msg, rc);
@@ -232,7 +232,7 @@ int mqtt_publish(mqtt_context_t *mqttctx, const char *topic, const char *msg, in
 int mqtt_subscribe(mqtt_context_t *mqttctx, const char *topic, int qos, int *mid)
 {
     int rc;
-    int m;
+    MOSQ_MID_T m;
 
     rc = mosquitto_subscribe(mqttctx->mosq, &m, topic, qos);
     LOG_DEBUG("mqtt_subscribe topic=%s rc=%d", topic, rc);
@@ -249,7 +249,7 @@ int mqtt_subscribe(mqtt_context_t *mqttctx, const char *topic, int qos, int *mid
 int mqtt_unsubscribe(mqtt_context_t *mqttctx, const char *topic, int *mid)
 {
     int rc;
-    int m;
+    MOSQ_MID_T m;
 
     rc = mosquitto_unsubscribe(mqttctx->mosq, &m, topic);
     LOG_DEBUG("mqtt_unsubscribe topic=%s rc=%d", topic, rc);
