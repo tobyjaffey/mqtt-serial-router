@@ -25,6 +25,12 @@
 
 extern server_context_t g_srvctx;
 
+#if LIBMOSQUITTO_VERSION_NUMBER < 1000005
+#define MOSQ_MID_T uint16_t
+#else
+#define MOSQ_MID_T int
+#endif
+
 static void mqtt_reconnect_timeout_cb(struct ev_loop *loop, struct ev_io *w, int revents)
 {
     ev_timer_helper_t *watcher = (ev_timer_helper_t *)w;
@@ -110,29 +116,27 @@ static void mosq_message_cb(struct mosquitto *mosq, void *userdata, const struct
     {
         LOG_DEBUG("mqtt rx %s %s", msg->topic, msg->payload);
         cmd_message_cb(msg->topic, msg->payload);
-        //webapi_message_cb(msg->mid, msg->topic, msg->payload);
     }
     else
     {
         LOG_DEBUG("mqtt rx %s (null)", msg->topic);
-        //webapi_message_cb(msg->mid, msg->topic, "");
         cmd_message_cb(msg->topic, NULL);
     }
 }
 
-static void mosq_unsubscribe_cb(struct mosquitto *mosq, void *userdata, int mid)
+static void mosq_unsubscribe_cb(struct mosquitto *mosq, void *userdata, MOSQ_MID_T mid)
 {
     LOG_DEBUG("unsub OK mid=%d", mid);
     cmd_unsubscribe_cb(mid);
 }
 
-static void mosq_subscribe_cb(struct mosquitto *mosq, void *userdata, int mid, int qos_count, const int *granted_qos)
+static void mosq_subscribe_cb(struct mosquitto *mosq, void *userdata, MOSQ_MID_T mid, int qos_count, const int *granted_qos)
 {
     LOG_DEBUG("sub OK mid=%d", mid);
     cmd_subscribe_cb(mid);
 }
 
-static void mosq_publish_cb(struct mosquitto *mosq, void *userdata, int mid)
+static void mosq_publish_cb(struct mosquitto *mosq, void *userdata, MOSQ_MID_T mid)
 {
     LOG_DEBUG("pub OK mid=%d", mid);
     cmd_publish_cb(mid);
@@ -211,11 +215,13 @@ int mqtt_disconnect(mqtt_context_t *mqttctx)
 int mqtt_publish(mqtt_context_t *mqttctx, const char *topic, const char *msg, int qos, int *mid)
 {
     int rc;
-    int dummy;
-    int *m = (NULL == mid) ? &dummy : mid;
+    int m;
 
-    rc = mosquitto_publish(mqttctx->mosq, m, topic, strlen(msg), (const uint8_t *)msg, qos, true);
+    rc = mosquitto_publish(mqttctx->mosq, &m, topic, strlen(msg), (const uint8_t *)msg, qos, true);
     LOG_DEBUG("mqtt_publish topic=%s msg=%s rc=%d", topic, msg, rc);
+
+    if (NULL != mid)
+        *mid = m;
 
     if (mosquitto_want_write(mqttctx->mosq))
         ev_io_start(g_srvctx.loop, &mqttctx->write_watcher.io);
@@ -226,11 +232,13 @@ int mqtt_publish(mqtt_context_t *mqttctx, const char *topic, const char *msg, in
 int mqtt_subscribe(mqtt_context_t *mqttctx, const char *topic, int qos, int *mid)
 {
     int rc;
-    int dummy;
-    int *m = (NULL == mid) ? &dummy : mid;
+    int m;
 
-    rc = mosquitto_subscribe(mqttctx->mosq, m, topic, qos);
+    rc = mosquitto_subscribe(mqttctx->mosq, &m, topic, qos);
     LOG_DEBUG("mqtt_subscribe topic=%s rc=%d", topic, rc);
+
+    if (NULL != mid)
+        *mid = m;
 
     if (mosquitto_want_write(mqttctx->mosq))
         ev_io_start(g_srvctx.loop, &mqttctx->write_watcher.io);
@@ -241,11 +249,13 @@ int mqtt_subscribe(mqtt_context_t *mqttctx, const char *topic, int qos, int *mid
 int mqtt_unsubscribe(mqtt_context_t *mqttctx, const char *topic, int *mid)
 {
     int rc;
-    int dummy;
-    int *m = (NULL == mid) ? &dummy : mid;
+    int m;
 
-    rc = mosquitto_unsubscribe(mqttctx->mosq, m, topic);
+    rc = mosquitto_unsubscribe(mqttctx->mosq, &m, topic);
     LOG_DEBUG("mqtt_unsubscribe topic=%s rc=%d", topic, rc);
+
+    if (NULL != mid)
+        *mid = m;
 
     if (mosquitto_want_write(mqttctx->mosq))
         ev_io_start(g_srvctx.loop, &mqttctx->write_watcher.io);
