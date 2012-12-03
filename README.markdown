@@ -30,11 +30,9 @@ SUB bob power id
 # Publish data to the broker and see it routed to the clients
 mosquitto_pub -h test.mosquitto.org -t "prefix/power" -m "1.21GW"
 
-(You will see)
-
-INF alice power 1.21GW
-
-INF bob power 1.21GW
+(You will see)  
+INF alice power 1.21GW  
+INF bob power 1.21GW  
 
 
 A simple publish example
