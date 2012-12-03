@@ -77,7 +77,11 @@ static void mqtt_ev_cb(struct ev_loop *loop, ev_io *w, int revents)
 
     if (EV_READ & revents)
     {
-        if (MOSQ_ERR_SUCCESS != mosquitto_loop_read(mqttctx->mosq, 1))
+        if (MOSQ_ERR_SUCCESS != mosquitto_loop_read(mqttctx->mosq
+#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+        , 1
+#endif
+        ))
         {
             LOG_ERROR("read fail");
             mqtt_disconnect(mqttctx);
@@ -86,7 +90,11 @@ static void mqtt_ev_cb(struct ev_loop *loop, ev_io *w, int revents)
 
     if (EV_WRITE & revents)
     {
-        if (MOSQ_ERR_SUCCESS != mosquitto_loop_write(mqttctx->mosq, 1))
+        if (MOSQ_ERR_SUCCESS != mosquitto_loop_write(mqttctx->mosq
+#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+        , 1
+#endif
+        ))
         {
             LOG_ERROR("write fail");
             mqtt_disconnect(mqttctx);
@@ -182,7 +190,12 @@ int mqtt_connect(mqtt_context_t *mqttctx, const char *name, const char *host, ui
     if (NULL != mqttctx->mosq)
         mosquitto_destroy(mqttctx->mosq);
 
+
+#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
     if (NULL == (mqttctx->mosq = mosquitto_new(name, true, (void *)mqttctx)))
+#else
+    if (NULL == (mqttctx->mosq = mosquitto_new(name, (void *)mqttctx)))
+#endif
         return 1;
 
     mosquitto_connect_callback_set(mqttctx->mosq, mosq_connect_cb);
