@@ -102,7 +102,9 @@ static void mqtt_ev_cb(struct ev_loop *loop, ev_io *w, int revents)
             mqtt_disconnect(mqttctx);
         }
 
+#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
         if (!mosquitto_want_write(mqttctx->mosq))
+#endif
             ev_io_stop(g_srvctx.loop, &mqttctx->write_watcher.io);
     }
 }
@@ -264,7 +266,9 @@ int mqtt_publish(mqtt_context_t *mqttctx, const char *topic, const char *msg, in
     if (NULL != mid)
         *mid = m;
 
+#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
     if (mosquitto_want_write(mqttctx->mosq))
+#endif
         ev_io_start(g_srvctx.loop, &mqttctx->write_watcher.io);
 
     return rc;
@@ -281,7 +285,9 @@ int mqtt_subscribe(mqtt_context_t *mqttctx, const char *topic, int qos, int *mid
     if (NULL != mid)
         *mid = m;
 
+#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
     if (mosquitto_want_write(mqttctx->mosq))
+#endif
         ev_io_start(g_srvctx.loop, &mqttctx->write_watcher.io);
 
     return rc;
@@ -298,7 +304,9 @@ int mqtt_unsubscribe(mqtt_context_t *mqttctx, const char *topic, int *mid)
     if (NULL != mid)
         *mid = m;
 
+#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
     if (mosquitto_want_write(mqttctx->mosq))
+#endif
         ev_io_start(g_srvctx.loop, &mqttctx->write_watcher.io);
 
     return rc;
