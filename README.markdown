@@ -100,6 +100,8 @@ Format
 All commands are single lines of "\r\n" terminated ASCII text with arguments
 separated by spaces.
 
+Addresses, keys, values and ids are all freeform strings.
+
 The following escape sequences are accepted:
 
     '\ ' -> ' '
