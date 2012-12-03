@@ -17,10 +17,13 @@ line directly.
 Quickstart
 ----------
 
-# Build it
-# sudo apt-get install libev-dev mosquitto-dev
+Build it
+
+sudo apt-get install libev-dev mosquitto-dev
 make
-# Connect to console and MQTT broker, subscribe two clients to a topic
+
+Connect to console and MQTT broker, subscribe two clients to a topic
+
 ./router -v -d - -s test.mosquitto.org -p 1883 -t prefix/
 
 SUB alice power id
@@ -28,7 +31,8 @@ SUB alice power id
 SUB bob power id
 
 
-# Publish data to the broker and see it routed to the clients
+Publish data to the broker and see it routed to the clients
+
 mosquitto_pub -h test.mosquitto.org -t "prefix/power" -m "1.21GW"
 
 (You will see)  
