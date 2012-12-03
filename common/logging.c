@@ -6,9 +6,9 @@
 #include <stdbool.h>
 #include <stdarg.h>
 #include <sys/time.h>
+#include <time.h>
 
 #include "logging.h"
-#include "util.h"
 
 static int loglevel = LOGLEVEL_INFO;
 

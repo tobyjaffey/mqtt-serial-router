@@ -18,6 +18,7 @@ Quickstart
 ----------
 
 # Build it
+# sudo apt-get install libev-dev mosquitto-dev
 make
 # Connect to console and MQTT broker, subscribe two clients to a topic
 ./router -v -d - -s test.mosquitto.org -p 1883 -t prefix/
