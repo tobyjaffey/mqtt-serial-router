@@ -19,25 +19,24 @@ Quickstart
 
 Build it
 
-sudo apt-get install libev-dev mosquitto-dev
-make
+    sudo apt-get install libev-dev mosquitto-dev
+    make
 
 Connect to console and MQTT broker, subscribe two clients to a topic
 
-./router -v -d - -s test.mosquitto.org -p 1883 -t prefix/
+    ./router -v -d - -s test.mosquitto.org -p 1883 -t prefix/
 
-SUB alice power id
-
-SUB bob power id
-
+    SUB alice power id
+    SUB bob power id
 
 Publish data to the broker and see it routed to the clients
 
-mosquitto_pub -h test.mosquitto.org -t "prefix/power" -m "1.21GW"
+    mosquitto_pub -h test.mosquitto.org -t "prefix/power" -m "1.21GW"
 
-(You will see)  
-INF alice power 1.21GW  
-INF bob power 1.21GW  
+You will see
+
+    INF alice power 1.21GW  
+    INF bob power 1.21GW  
 
 
 A simple publish example
@@ -56,22 +55,22 @@ A web service is subscribed to the MQTT topic PREFIX/power
 
 The serial line between gateway and router sees:
 
--> PUB 0xCAFE power 69W forgetmenot  
-<- PUBACK 0xCAFE forgetmenot  
+    -> PUB 0xCAFE power 69W forgetmenot  
+    <- PUBACK 0xCAFE forgetmenot  
 
 All subscribed clients of the MQTT broker see "69W" on PREFIX/power.
 
 A simple subscribe example
 --------------------------
 
--> SUB alice power token  
-<- SUBACK alice token  
--> SUB bob power token  
-<- SUBACK bob token  
--> PUB carol power 1.21GW token  
-<- PUBACK carol token  
--> INF alice power 1.21GW  
--> INF bob power 1.21GW  
+    -> SUB alice power token  
+    <- SUBACK alice token  
+    -> SUB bob power token  
+    <- SUBACK bob token  
+    -> PUB carol power 1.21GW token  
+    <- PUBACK carol token  
+    -> INF alice power 1.21GW  
+    -> INF bob power 1.21GW  
 
 Now, a publish to the MQTT topic PREFIX/power will result in INF messages to
 both alice and bob.
@@ -84,19 +83,16 @@ A client of the router (eg. a wireless gateway) sends commands to the router
 and receives responses. Responses are asynchronous and may arrive out of order.
 The INF message may arrive at the client at any time.
 
-Cmd: PUB addr key val id
+    Cmd: PUB addr key val id
+    Rsp: PUBACK addr id
 
-Rsp: PUBACK addr id
+    Cmd: SUB addr key id
+    Rsp: SUBACK addr id
 
-Cmd: SUB addr key id
+    Cmd: UNSUB addr key id
+    Rsp: UNSUBACK addr id
 
-Rsp: SUBACK addr id
-
-Cmd: UNSUB addr key id
-
-Rsp: UNSUBACK addr id
-
-Rsp: INF addr key val
+    Rsp: INF addr key val
 
 Format
 ======
@@ -105,19 +101,16 @@ All commands are single lines of "\r\n" terminated ASCII text with arguments
 separated by spaces.
 
 The following escape sequences are accepted:
+
     '\ ' -> ' '
-
     '\n' -> newline
-
     '\r' -> CR
-
     '"'  -> "
-
     '\\' -> '\'
 
 Eg. to publish data containing spaces:
 
-PUB myaddr mykey This\ is\ all\ one\ argument myid
+    PUB myaddr mykey This\ is\ all\ one\ argument myid
 
 
 Caveats
