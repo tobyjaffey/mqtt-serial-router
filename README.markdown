@@ -51,29 +51,22 @@ A web service is subscribed to the MQTT topic PREFIX/power
 
 The serial line between gateway and router sees:
 
--> PUB 0xCAFE power 69W forgetmenot
-
-<- PUBACK 0xCAFE forgetmenot
+-> PUB 0xCAFE power 69W forgetmenot  
+<- PUBACK 0xCAFE forgetmenot  
 
 All subscribed clients of the MQTT broker see "69W" on PREFIX/power.
 
 A simple subscribe example
 --------------------------
 
--> SUB alice power token
-
-<- SUBACK alice token
-
--> SUB bob power token
-<- SUBACK bob token
-
--> PUB carol power 1.21GW token
-
-<- PUBACK carol token
-
--> INF alice power 1.21GW
-
--> INF bob power 1.21GW
+-> SUB alice power token  
+<- SUBACK alice token  
+-> SUB bob power token  
+<- SUBACK bob token  
+-> PUB carol power 1.21GW token  
+<- PUBACK carol token  
+-> INF alice power 1.21GW  
+-> INF bob power 1.21GW  
 
 Now, a publish to the MQTT topic PREFIX/power will result in INF messages to
 both alice and bob.
