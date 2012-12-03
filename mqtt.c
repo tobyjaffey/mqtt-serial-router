@@ -97,7 +97,11 @@ static void mqtt_ev_cb(struct ev_loop *loop, ev_io *w, int revents)
     }
 }
 
-static void mosq_connect_cb(struct mosquitto *mosq, void *userdata, int rc)
+static void mosq_connect_cb(
+#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+struct mosquitto *mosq,
+#endif
+void *userdata, int rc)
 {
     mqtt_context_t *mqttctx = (mqtt_context_t *)userdata;
 
@@ -110,7 +114,11 @@ static void mosq_connect_cb(struct mosquitto *mosq, void *userdata, int rc)
     }
 }
 
-static void mosq_message_cb(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *msg)
+static void mosq_message_cb(
+#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+struct mosquitto *mosq,
+#endif
+void *userdata, const struct mosquitto_message *msg)
 {
     if (msg->payloadlen)
     {
@@ -124,19 +132,31 @@ static void mosq_message_cb(struct mosquitto *mosq, void *userdata, const struct
     }
 }
 
-static void mosq_unsubscribe_cb(struct mosquitto *mosq, void *userdata, MOSQ_MID_T mid)
+static void mosq_unsubscribe_cb(
+#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+struct mosquitto *mosq,
+#endif
+void *userdata, MOSQ_MID_T mid)
 {
     LOG_DEBUG("unsub OK mid=%d", mid);
     cmd_unsubscribe_cb(mid);
 }
 
-static void mosq_subscribe_cb(struct mosquitto *mosq, void *userdata, MOSQ_MID_T mid, int qos_count, const int *granted_qos)
+static void mosq_subscribe_cb(
+#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+struct mosquitto *mosq,
+#endif
+void *userdata, MOSQ_MID_T mid, int qos_count, const int *granted_qos)
 {
     LOG_DEBUG("sub OK mid=%d", mid);
     cmd_subscribe_cb(mid);
 }
 
-static void mosq_publish_cb(struct mosquitto *mosq, void *userdata, MOSQ_MID_T mid)
+static void mosq_publish_cb(
+#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+struct mosquitto *mosq,
+#endif
+void *userdata, MOSQ_MID_T mid)
 {
     LOG_DEBUG("pub OK mid=%d", mid);
     cmd_publish_cb(mid);
