@@ -25,7 +25,7 @@
 
 extern server_context_t g_srvctx;
 
-#if LIBMOSQUITTO_VERSION_NUMBER < 1000005
+#if LIBMOSQUITTO_VERSION_NUMBER <= 1000000
 #define MOSQ_MID_T uint16_t
 #else
 #define MOSQ_MID_T int
@@ -64,7 +64,7 @@ static void mqtt_timeout_cb(struct ev_loop *loop, struct ev_io *w, int revents)
                 mqtt_disconnect(mqttctx);
             }
 
-#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+#if LIBMOSQUITTO_VERSION_NUMBER > 1000000
             if (mosquitto_want_write(mqttctx->mosq))
 #endif
                 ev_io_start(g_srvctx.loop, &mqttctx->write_watcher.io);
@@ -80,7 +80,7 @@ static void mqtt_ev_cb(struct ev_loop *loop, ev_io *w, int revents)
     if (EV_READ & revents)
     {
         if (MOSQ_ERR_SUCCESS != mosquitto_loop_read(mqttctx->mosq
-#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+#if LIBMOSQUITTO_VERSION_NUMBER > 1000000
         , 1
 #endif
         ))
@@ -93,7 +93,7 @@ static void mqtt_ev_cb(struct ev_loop *loop, ev_io *w, int revents)
     if (EV_WRITE & revents)
     {
         if (MOSQ_ERR_SUCCESS != mosquitto_loop_write(mqttctx->mosq
-#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+#if LIBMOSQUITTO_VERSION_NUMBER > 1000000
         , 1
 #endif
         ))
@@ -102,7 +102,7 @@ static void mqtt_ev_cb(struct ev_loop *loop, ev_io *w, int revents)
             mqtt_disconnect(mqttctx);
         }
 
-#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+#if LIBMOSQUITTO_VERSION_NUMBER > 1000000
         if (!mosquitto_want_write(mqttctx->mosq))
 #endif
             ev_io_stop(g_srvctx.loop, &mqttctx->write_watcher.io);
@@ -110,7 +110,7 @@ static void mqtt_ev_cb(struct ev_loop *loop, ev_io *w, int revents)
 }
 
 static void mosq_connect_cb(
-#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+#if LIBMOSQUITTO_VERSION_NUMBER > 1000000
 struct mosquitto *mosq,
 #endif
 void *userdata, int rc)
@@ -127,7 +127,7 @@ void *userdata, int rc)
 }
 
 static void mosq_message_cb(
-#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+#if LIBMOSQUITTO_VERSION_NUMBER > 1000000
 struct mosquitto *mosq,
 #endif
 void *userdata, const struct mosquitto_message *msg)
@@ -145,7 +145,7 @@ void *userdata, const struct mosquitto_message *msg)
 }
 
 static void mosq_unsubscribe_cb(
-#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+#if LIBMOSQUITTO_VERSION_NUMBER > 1000000
 struct mosquitto *mosq,
 #endif
 void *userdata, MOSQ_MID_T mid)
@@ -155,7 +155,7 @@ void *userdata, MOSQ_MID_T mid)
 }
 
 static void mosq_subscribe_cb(
-#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+#if LIBMOSQUITTO_VERSION_NUMBER > 1000000
 struct mosquitto *mosq,
 void *userdata, MOSQ_MID_T mid, int qos_count, const int *granted_qos)
 #else
@@ -167,7 +167,7 @@ void *userdata, MOSQ_MID_T mid, int qos_count, const uint8_t *granted_qos)
 }
 
 static void mosq_publish_cb(
-#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+#if LIBMOSQUITTO_VERSION_NUMBER > 1000000
 struct mosquitto *mosq,
 #endif
 void *userdata, MOSQ_MID_T mid)
@@ -197,7 +197,7 @@ int mqtt_connect(mqtt_context_t *mqttctx, const char *name, const char *host, ui
         mosquitto_destroy(mqttctx->mosq);
 
 
-#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+#if LIBMOSQUITTO_VERSION_NUMBER > 1000000
     if (NULL == (mqttctx->mosq = mosquitto_new(name, true, (void *)mqttctx)))
 #else
     if (NULL == (mqttctx->mosq = mosquitto_new(name, (void *)mqttctx)))
@@ -216,7 +216,7 @@ int mqtt_connect(mqtt_context_t *mqttctx, const char *name, const char *host, ui
         strncpy(g_srvctx.mqtt_server, host, sizeof(g_srvctx.mqtt_server));
     g_srvctx.mqtt_port = port;
 
-#if LIBMOSQUITTO_VERSION_NUMBER < 1000005
+#if LIBMOSQUITTO_VERSION_NUMBER <= 1000000
     if (0 != mosquitto_connect(mqttctx->mosq, g_srvctx.mqtt_server, g_srvctx.mqtt_port, 5, true)) // FIXME, this should be async, with below in cb
 #else
     if (0 != mosquitto_connect(mqttctx->mosq, g_srvctx.mqtt_server, g_srvctx.mqtt_port, 5)) // FIXME, this should be async, with below in cb
@@ -266,7 +266,7 @@ int mqtt_publish(mqtt_context_t *mqttctx, const char *topic, const char *msg, in
     if (NULL != mid)
         *mid = m;
 
-#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+#if LIBMOSQUITTO_VERSION_NUMBER > 1000000
     if (mosquitto_want_write(mqttctx->mosq))
 #endif
         ev_io_start(g_srvctx.loop, &mqttctx->write_watcher.io);
@@ -285,7 +285,7 @@ int mqtt_subscribe(mqtt_context_t *mqttctx, const char *topic, int qos, int *mid
     if (NULL != mid)
         *mid = m;
 
-#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+#if LIBMOSQUITTO_VERSION_NUMBER > 1000000
     if (mosquitto_want_write(mqttctx->mosq))
 #endif
         ev_io_start(g_srvctx.loop, &mqttctx->write_watcher.io);
@@ -304,7 +304,7 @@ int mqtt_unsubscribe(mqtt_context_t *mqttctx, const char *topic, int *mid)
     if (NULL != mid)
         *mid = m;
 
-#if LIBMOSQUITTO_VERSION_NUMBER >= 1000005
+#if LIBMOSQUITTO_VERSION_NUMBER > 1000000
     if (mosquitto_want_write(mqttctx->mosq))
 #endif
         ev_io_start(g_srvctx.loop, &mqttctx->write_watcher.io);

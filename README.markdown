@@ -19,7 +19,7 @@ Quickstart
 
 Build it
 
-    sudo apt-get install libev-dev mosquitto-dev
+    sudo apt-get install libev-dev libmosquitto0-dev
     make
 
 Connect to console and MQTT broker, subscribe two clients to a topic
